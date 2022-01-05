@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "id": "fabric-friend-or-foe",
+  "version": "${version}",
+
+  "name": "Fabric Friend Or Foe",
+  "description": "This mod changes the colours of player names according to their relationship to the player.",
+  "authors": [
+    "InfiniteImperm"
+  ],
+  "contact": {
+    "homepage": "https://github.com/InfiniteImperm",
+    "sources": "https://github.com/InfiniteImperm/fabric-friend-or-foe"
+  },
+
+  "license": "MIT",
+  "icon": "assets/fabric-friend-or-foe/icon.png",
+
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "net.infiniteimperm.fabric.friendorfoe.FriendOrFoe"
+    ]
+  },
+  "mixins": [
+    "fabric-friend-or-foe.mixins.json"
+  ],
+
+  "depends": {
+    "fabricloader": ">=0.11.3",
+    "fabric": "*",
+    "minecraft": "1.17.x",
+    "java": ">=16"
+  },
+  "suggests": {
+    "another-mod": "*"
+  }
+}
