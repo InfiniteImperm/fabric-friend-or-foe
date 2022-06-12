@@ -4,10 +4,7 @@ import com.mojang.brigadier.arguments.StringArgumentType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager;
 import net.fabricmc.loader.api.FabricLoader;
-import net.infiniteimperm.fabric.friendorfoe.command.CreateGroupCommand;
-import net.infiniteimperm.fabric.friendorfoe.command.DisableCommand;
-import net.infiniteimperm.fabric.friendorfoe.command.DisplayHelpCommand;
-import net.infiniteimperm.fabric.friendorfoe.command.EnableCommand;
+import net.infiniteimperm.fabric.friendorfoe.command.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -55,6 +52,7 @@ public class FriendOrFoe implements ModInitializer {
         ClientCommandManager.DISPATCHER.register(literal("imperm").then(literal("fof").executes(new DisplayHelpCommand())));
         ClientCommandManager.DISPATCHER.register(literal("imperm").then(literal("fof").then(literal("help").executes(new DisplayHelpCommand()))));
         ClientCommandManager.DISPATCHER.register(literal("imperm").then(literal("fof").then(literal("group").then(literal("create").then(argument("groupName", StringArgumentType.word()).then(argument("colourCode", StringArgumentType.word()).executes(new CreateGroupCommand())))))));
+        ClientCommandManager.DISPATCHER.register(literal("imperm").then(literal("fof").then(literal("group").then(literal("delete").then(argument("groupName", StringArgumentType.word()).executes(new DeleteGroupCommand()))))));
         ClientCommandManager.DISPATCHER.register(literal("imperm").then(literal("fof").then(literal("enable").executes(new EnableCommand()))));
         ClientCommandManager.DISPATCHER.register(literal("imperm").then(literal("fof").then(literal("disable").executes(new DisableCommand()))));
     }

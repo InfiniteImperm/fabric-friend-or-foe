@@ -14,6 +14,7 @@ public class DisplayHelpCommand implements com.mojang.brigadier.Command<net.fabr
         context.getSource().sendFeedback(new LiteralText("§b\"/imperm fof <groupName> add <playerName>\" adds a player to a group"));
         context.getSource().sendFeedback(new LiteralText("§b\"/imperm fof friend remove <playerName>\" removes a friend"));
         context.getSource().sendFeedback(new LiteralText("§b\"/imperm fof group create <groupname> <colourCode>\" creates a new group. the colourCode must be a number from 0 to 9 or a letter from a to f"));
+        context.getSource().sendFeedback(new LiteralText("§b\"/imperm fof group delete <groupname>\" deletes a group."));
         return 0;
     }
 }
