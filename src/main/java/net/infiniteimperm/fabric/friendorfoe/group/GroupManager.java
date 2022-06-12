@@ -102,9 +102,9 @@ public class GroupManager {
             FriendOrFoe.LOGGER.error(e);
             return null;
         }
-        // save groups config
-        if (!Configuration.getInstance().saveGroups())
-            return null;
+        // manage files
+        if (!Configuration.getInstance().saveGroups()) return null;
+        if(!Configuration.getInstance().removeGroupFile(groupName)) return null;
         return group;
     }
 

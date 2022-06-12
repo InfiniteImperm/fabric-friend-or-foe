@@ -4,6 +4,7 @@ import net.infiniteimperm.fabric.friendorfoe.group.GroupManager;
 import net.infiniteimperm.fabric.friendorfoe.group.Group;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 
 public class Configuration {
@@ -13,6 +14,18 @@ public class Configuration {
     public static Configuration getInstance() {
         if (INSTANCE == null) INSTANCE = new Configuration();
         return INSTANCE;
+    }
+
+    public boolean removeGroupFile(String groupName) {
+        try {
+            Files.delete(Paths.get(FriendOrFoe.CONFIG_BASE_PATH.getAbsolutePath(), groupName + ".group"));
+        }
+        catch(IOException e) {
+            FriendOrFoe.LOGGER.error("friend-or-foe: couldn't delete group file for group " + groupName);
+            FriendOrFoe.LOGGER.error(e);
+            return false;
+        }
+        return true;
     }
 
     private void loadGroup(File directory, String groupName, String colourCode) throws IOException {
