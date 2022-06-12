@@ -7,6 +7,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 
@@ -46,8 +47,10 @@ public class GroupManager {
 
     private boolean saveGroup(String groupName) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(getGroupFile(groupName), false))) {
-            for (String uuid : playerToGroupMap.keySet()) {
-                if (playerToGroupMap.get(uuid).equals(groupName)) writer.write(uuid + "\n");
+            synchronized (playerToGroupMap) {
+                for (String uuid : playerToGroupMap.keySet()) {
+                    if (playerToGroupMap.get(uuid).equals(groupName)) writer.write(uuid + "\n");
+                }
             }
             writer.flush();
         } catch (IOException e) {
@@ -58,21 +61,55 @@ public class GroupManager {
     }
 
     public boolean register(Group group, boolean override) {
-        if (groups.containsKey(group.getName())) return false;
-        groups.put(group.getName(), group);
+        synchronized (groups) {
+            if (groups.containsKey(group.getName())) return false;
+            groups.put(group.getName(), group);
+        }
         FriendOrFoeCommandFactory.register(group.getName(), "add", uuid -> GroupManager.getInstance().set(uuid, group.getName()));
         if (override) saveGroup(group.getName());
         return true;
     }
 
+    public Group delete(String groupName) {
+        // clear playerToGroupMap first bc other components might look up a group name first and then fail to resolve it afterwards
+        HashSet<String> playerEntries = new HashSet<>();
+        synchronized (playerToGroupMap) {
+            for (String player : playerToGroupMap.keySet())
+                if (playerToGroupMap.get(player).equals(groupName))
+                    playerEntries.add(player);
+            for (String player : playerEntries) {
+                playerToGroupMap.remove(player);
+            }
+        }
+        // remove group from map
+        Group group;
+        synchronized (groups) {
+            if (!groups.containsKey(groupName)) return null;
+            group = groups.remove(groupName);
+        }
+        // clear name cache to get rid of association with group
+        for (String player : playerEntries)
+            playerNameCache.clear(player);
+        try {
+            Files.delete(getGroupFile(groupName).toPath());
+        } catch (IOException e) {
+            FriendOrFoe.LOGGER.error(e);
+            return null;
+        }
+        return group;
+    }
+
     public boolean set(String uuid, String target) {
         if (uuid == null || "".equals(uuid) || target == null || "".equals(target)) return false;
-        FriendOrFoe.LOGGER.info("player " + uuid + " is in group \"" + playerToGroupMap.get(uuid) + "\" and target is \"" + target + "\"");
-        if (target.equals(playerToGroupMap.get(uuid))) {
-            FriendOrFoe.LOGGER.info("nothing to do");
-            return true;
+        String previousGroup;
+        synchronized (playerToGroupMap) {
+            FriendOrFoe.LOGGER.info("player " + uuid + " is in group \"" + playerToGroupMap.get(uuid) + "\" and target is \"" + target + "\"");
+            if (target.equals(playerToGroupMap.get(uuid))) {
+                FriendOrFoe.LOGGER.info("nothing to do");
+                return true;
+            }
+            previousGroup = playerToGroupMap.put(uuid, target);
         }
-        String previousGroup = playerToGroupMap.put(uuid, target);
         playerNameCache.clear(uuid);
         if (previousGroup != null && !"".equals(previousGroup) && !saveGroup(previousGroup)) return false;
         return addGroupEntry(uuid, target);
@@ -83,9 +120,14 @@ public class GroupManager {
     }
 
     public Group getGroup(String uuid) {
-        String groupName = playerToGroupMap.get(uuid);
+        String groupName;
+        synchronized (playerToGroupMap) {
+            groupName = playerToGroupMap.get(uuid);
+        }
         if (groupName == null) return null;
-        return groups.get(groupName);
+        synchronized (groups) {
+            return groups.get(groupName);
+        }
     }
 
     public Collection<Group> getGroups() {
