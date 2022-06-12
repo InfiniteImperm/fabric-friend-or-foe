@@ -24,9 +24,11 @@ public class PlayerNameCache {
     }
 
     public Text getPlayerName(String uuid, String name) {
-        if (!textCache.containsKey(uuid))
-            textCache.put(uuid, new LiteralText(replacePlayerName(uuid, name)));
-        return textCache.get(uuid);
+        synchronized (textCache) {
+            if (!textCache.containsKey(uuid))
+                textCache.put(uuid, new LiteralText(replacePlayerName(uuid, name)));
+            return textCache.get(uuid);
+        }
     }
 
     private Text getPlayerName(GameProfile gameProfile) {
@@ -53,6 +55,8 @@ public class PlayerNameCache {
     }
 
     public void clear(String uuid) {
-        textCache.remove(uuid);
+        synchronized (textCache) {
+            textCache.remove(uuid);
+        }
     }
 }
