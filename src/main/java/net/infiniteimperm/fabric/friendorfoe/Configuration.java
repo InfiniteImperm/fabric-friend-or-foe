@@ -5,6 +5,7 @@ import net.infiniteimperm.fabric.friendorfoe.group.Group;
 
 import java.io.*;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class Configuration {
@@ -17,8 +18,10 @@ public class Configuration {
     }
 
     public boolean removeGroupFile(String groupName) {
+        Path path = Paths.get(FriendOrFoe.CONFIG_BASE_PATH.getAbsolutePath(), groupName + ".group");
+        if( !Files.exists(path) ) return true;
         try {
-            Files.delete(Paths.get(FriendOrFoe.CONFIG_BASE_PATH.getAbsolutePath(), groupName + ".group"));
+            Files.delete(path);
         }
         catch(IOException e) {
             FriendOrFoe.LOGGER.error("friend-or-foe: couldn't delete group file for group " + groupName);
