@@ -9,17 +9,18 @@ import net.infiniteimperm.fabric.friendorfoe.group.GroupManager;
 import net.minecraft.text.LiteralText;
 
 public class DeleteGroupCommand implements com.mojang.brigadier.Command<FabricClientCommandSource> {
+
+    private final String groupName;
+
+    public DeleteGroupCommand(String groupName) {
+        this.groupName = groupName;
+    }
     @Override
     public int run(CommandContext<FabricClientCommandSource> context) {
-        String groupName = StringArgumentType.getString(context, "groupName");
-        if ("".equals(groupName)) {
-            context.getSource().sendError(new LiteralText("§4groupName or colourCode was empty"));
-            return 1;
-        }
         Group group = GroupManager.getInstance().delete(groupName);
         if( group == null ) {
             context.getSource().sendError(new LiteralText("§4group could not be deleted"));
-            return 2;
+            return 1;
         }
         context.getSource().sendFeedback(new LiteralText("§2group §" + group.getColourCode() + groupName + " §2successfully deleted"));
         context.getSource().sendFeedback(new LiteralText("§eMinecraft has to be restarted before the associated commands are removed."));

@@ -52,7 +52,6 @@ public class FriendOrFoe implements ModInitializer {
         ClientCommandManager.DISPATCHER.register(literal("imperm").then(literal("fof").executes(new DisplayHelpCommand())));
         ClientCommandManager.DISPATCHER.register(literal("imperm").then(literal("fof").then(literal("help").executes(new DisplayHelpCommand()))));
         ClientCommandManager.DISPATCHER.register(literal("imperm").then(literal("fof").then(literal("group").then(literal("create").then(argument("groupName", StringArgumentType.word()).then(argument("colourCode", StringArgumentType.word()).executes(new CreateGroupCommand())))))));
-        ClientCommandManager.DISPATCHER.register(literal("imperm").then(literal("fof").then(literal("group").then(literal("delete").then(argument("groupName", StringArgumentType.word()).executes(new DeleteGroupCommand()))))));
         ClientCommandManager.DISPATCHER.register(literal("imperm").then(literal("fof").then(literal("enable").executes(new EnableCommand()))));
         ClientCommandManager.DISPATCHER.register(literal("imperm").then(literal("fof").then(literal("disable").executes(new DisableCommand()))));
     }

@@ -1,15 +1,20 @@
 package net.infiniteimperm.fabric.friendorfoe.group;
 
+import com.mojang.brigadier.arguments.StringArgumentType;
+import net.fabricmc.fabric.api.client.command.v1.ClientCommandManager;
+import net.infiniteimperm.fabric.friendorfoe.Configuration;
 import net.infiniteimperm.fabric.friendorfoe.FriendOrFoe;
+import net.infiniteimperm.fabric.friendorfoe.command.DeleteGroupCommand;
+import net.infiniteimperm.fabric.friendorfoe.command.EnableCommand;
 import net.infiniteimperm.fabric.friendorfoe.command.FriendOrFoeCommandFactory;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
+
+import static net.fabricmc.fabric.api.client.command.v1.ClientCommandManager.argument;
+import static net.fabricmc.fabric.api.client.command.v1.ClientCommandManager.literal;
 
 public class GroupManager {
 
@@ -66,6 +71,7 @@ public class GroupManager {
             groups.put(group.getName(), group);
         }
         FriendOrFoeCommandFactory.register(group.getName(), "add", uuid -> GroupManager.getInstance().set(uuid, group.getName()));
+        ClientCommandManager.DISPATCHER.register(literal("imperm").then(literal("fof").then(literal("group").then(literal("delete").then(literal(group.getName()).executes(new DeleteGroupCommand(group.getName())))))));
         if (override) saveGroup(group.getName());
         return true;
     }
@@ -96,6 +102,9 @@ public class GroupManager {
             FriendOrFoe.LOGGER.error(e);
             return null;
         }
+        // save groups config
+        if (!Configuration.getInstance().saveGroups())
+            return null;
         return group;
     }
 
@@ -131,6 +140,8 @@ public class GroupManager {
     }
 
     public Collection<Group> getGroups() {
-        return Collections.unmodifiableCollection(new ArrayList<>(groups.values()));
+        synchronized (groups) {
+            return Collections.unmodifiableCollection(new ArrayList<>(groups.values()));
+        }
     }
 }
